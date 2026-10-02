@@ -370,15 +370,29 @@ def main():
     hybrid_yaml = generate_hybrid_yaml(gitmojis)
 
     (ROOT_DIR / "configs" / "gitmoji.yaml").write_text(gitmoji_yaml, encoding="utf-8")
-    (ROOT_DIR / ".github" / "release-drafter-gitmoji.yaml").write_text(gitmoji_yaml, encoding="utf-8")
     (ROOT_DIR / "configs" / "hybrid.yaml").write_text(hybrid_yaml, encoding="utf-8")
-    (ROOT_DIR / ".github" / "release-drafter.yaml").write_text(hybrid_yaml, encoding="utf-8")
+
+    # Symlinks only for gitmoji
+    github_dir = ROOT_DIR / ".github"
+    target = Path("../configs/gitmoji.yaml")
+    for link_name in ("release-drafter-gitmoji.yaml", "release-drafter.yaml"):
+        link_path = github_dir / link_name
+        if link_path.is_symlink():
+            if link_path.readlink() != target:
+                link_path.unlink()
+                link_path.symlink_to(target)
+        elif link_path.exists():
+            link_path.unlink()
+            link_path.symlink_to(target)
+        else:
+            link_path.symlink_to(target)
 
     print("Successfully generated:")
     print(" - configs/gitmoji.yaml")
-    print(" - .github/release-drafter-gitmoji.yaml")
     print(" - configs/hybrid.yaml")
-    print(" - .github/release-drafter.yaml")
+    print("Symlinked gitmoji configs:")
+    print(" - .github/release-drafter-gitmoji.yaml -> ../configs/gitmoji.yaml")
+    print(" - .github/release-drafter.yaml -> ../configs/gitmoji.yaml")
 
 
 if __name__ == "__main__":

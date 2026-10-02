@@ -114,7 +114,7 @@ Create `.github/release-drafter.yaml` in your repository:
 
 ```yaml
 # Inherit all categories, autolabeler regex, and version resolvers
-_extends: juftin/release-drafter:.github/release-drafter-conventional-commits.yaml
+_extends: juftin/release-drafter:configs/conventional-commits.yaml
 
 # (Optional) Override or add custom settings
 tag-prefix: 'v'
@@ -123,7 +123,7 @@ tag-prefix: 'v'
 For the Gitmoji preset:
 
 ```yaml
-_extends: juftin/release-drafter:.github/release-drafter-gitmoji.yaml
+_extends: juftin/release-drafter:configs/gitmoji.yaml
 ```
 
 Or for the default / hybrid preset:
