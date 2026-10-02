@@ -29,11 +29,14 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - name: Run Release Drafter
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run Release Drafter Action
         id: release_drafter
-        uses: release-drafter/release-drafter@v7
+        uses: juftin/release-drafter@main
         with:
-          config-name: release-drafter.yaml
+          config: gitmoji
           publish: ${{ inputs.publish || false }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
