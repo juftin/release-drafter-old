@@ -1,0 +1,185 @@
+name: Release Drafter Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      config:
+        description: 'Preset configuration to use: conventional-commits, gitmoji, or hybrid. Defaults to conventional-commits.'
+        type: string
+        default: 'conventional-commits'
+        required: false
+      config-name:
+        description: 'Custom config-name or path. Overrides preset config if provided.'
+        type: string
+        default: ''
+        required: false
+      publish:
+        description: 'Whether to publish the draft release immediately'
+        type: boolean
+        default: false
+        required: false
+      prerelease:
+        description: 'Whether to mark the release as a prerelease'
+        type: boolean
+        default: false
+        required: false
+      prerelease-identifier:
+        description: 'Prerelease identifier (e.g. alpha, beta, rc)'
+        type: string
+        default: ''
+        required: false
+      disable-autolabeler:
+        description: 'Whether to disable the automatic PR labeler'
+        type: boolean
+        default: false
+        required: false
+      commitish:
+        description: 'Target commit ref, SHA, branch, or tag to associate with the release'
+        type: string
+        default: ''
+        required: false
+      version:
+        description: 'Explicit version override'
+        type: string
+        default: ''
+        required: false
+      header:
+        description: 'Markdown prepended before the release notes body'
+        type: string
+        default: ''
+        required: false
+      footer:
+        description: 'Markdown appended after the release notes body'
+        type: string
+        default: ''
+        required: false
+      latest:
+        description: 'How GitHub should set the release latest status (true, false, or legacy)'
+        type: string
+        default: 'true'
+        required: false
+    secrets:
+      token:
+        description: 'GitHub token with contents:write and pull-requests:write permissions'
+        required: false
+    outputs:
+      id:
+        description: 'The release ID'
+        value: ${{ jobs.draft.outputs.id }}
+      name:
+        description: 'The release name'
+        value: ${{ jobs.draft.outputs.name }}
+      tag_name:
+        description: 'The release tag name'
+        value: ${{ jobs.draft.outputs.tag_name }}
+      body:
+        description: 'The release notes body'
+        value: ${{ jobs.draft.outputs.body }}
+      html_url:
+        description: 'The URL to the release'
+        value: ${{ jobs.draft.outputs.html_url }}
+      upload_url:
+        description: 'The URL for uploading release assets'
+        value: ${{ jobs.draft.outputs.upload_url }}
+      major_version:
+        description: 'The resolved major version number'
+        value: ${{ jobs.draft.outputs.major_version }}
+      minor_version:
+        description: 'The resolved minor version number'
+        value: ${{ jobs.draft.outputs.minor_version }}
+      patch_version:
+        description: 'The resolved patch version number'
+        value: ${{ jobs.draft.outputs.patch_version }}
+      resolved_version:
+        description: 'The full resolved version number'
+        value: ${{ jobs.draft.outputs.resolved_version }}
+
+jobs:
+  draft:
+    name: Draft Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      id: ${{ steps.release_drafter.outputs.id }}
+      name: ${{ steps.release_drafter.outputs.name }}
+      tag_name: ${{ steps.release_drafter.outputs.tag_name }}
+      body: ${{ steps.release_drafter.outputs.body }}
+      html_url: ${{ steps.release_drafter.outputs.html_url }}
+      upload_url: ${{ steps.release_drafter.outputs.upload_url }}
+      major_version: ${{ steps.release_drafter.outputs.major_version }}
+      minor_version: ${{ steps.release_drafter.outputs.minor_version }}
+      patch_version: ${{ steps.release_drafter.outputs.patch_version }}
+      resolved_version: ${{ steps.release_drafter.outputs.resolved_version }}
+    steps:
+      - name: Determine Configuration Source
+        id: config-source
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.config-name }}" ]; then
+            echo "needs_checkout=false" >> "$GITHUB_OUTPUT"
+            echo "config_name=${{ inputs.config-name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "needs_checkout=true" >> "$GITHUB_OUTPUT"
+
+            WORKFLOW_REF="${{ github.workflow_ref }}"
+            REPO="juftin/release-drafter"
+            REF="main"
+
+            if [[ "$WORKFLOW_REF" =~ ^([^/]+/[^/]+)/\.github/workflows/.*@(.*)$ ]]; then
+              REPO="${BASH_REMATCH[1]}"
+              REF="${BASH_REMATCH[2]}"
+            fi
+
+            echo "repo=$REPO" >> "$GITHUB_OUTPUT"
+            echo "ref=$REF" >> "$GITHUB_OUTPUT"
+
+            CONFIG_FILE="${{ inputs.config }}"
+            [[ "$CONFIG_FILE" != *.yml ]] && CONFIG_FILE="${CONFIG_FILE}.yml"
+            echo "config_file=$CONFIG_FILE" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout Shared Configurations
+        if: steps.config-source.outputs.needs_checkout == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.config-source.outputs.repo }}
+          ref: ${{ steps.config-source.outputs.ref }}
+          path: ${{ runner.temp }}/release-drafter-configs
+          sparse-checkout: |
+            configs
+          sparse-checkout-cone-mode: false
+
+      - name: Resolve Configuration Target
+        id: resolve-target
+        shell: bash
+        run: |
+          if [ "${{ steps.config-source.outputs.needs_checkout }}" = "true" ]; then
+            CONFIG_PATH="${{ runner.temp }}/release-drafter-configs/configs/${{ steps.config-source.outputs.config_file }}"
+            if [ -f "$CONFIG_PATH" ]; then
+              echo "config_name=file:$CONFIG_PATH" >> "$GITHUB_OUTPUT"
+            else
+              echo "Warning: $CONFIG_PATH not found, falling back to ${{ steps.config-source.outputs.config_file }}"
+              echo "config_name=${{ steps.config-source.outputs.config_file }}" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "config_name=${{ steps.config-source.outputs.config_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Release Drafter
+        id: release_drafter
+        uses: release-drafter/release-drafter@v7
+        with:
+          config-name: ${{ steps.resolve-target.outputs.config_name }}
+          publish: ${{ inputs.publish }}
+          prerelease: ${{ inputs.prerelease }}
+          prerelease-identifier: ${{ inputs.prerelease-identifier }}
+          disable-autolabeler: ${{ inputs.disable-autolabeler }}
+          commitish: ${{ inputs.commitish }}
+          version: ${{ inputs.version }}
+          header: ${{ inputs.header }}
+          footer: ${{ inputs.footer }}
+          latest: ${{ inputs.latest }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.token || secrets.GITHUB_TOKEN }}

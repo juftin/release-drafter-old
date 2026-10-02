@@ -1,0 +1,122 @@
+name: 'Release Drafter Action'
+description: 'Pre-configured Release Drafter GitHub Action supporting Gitmoji and Conventional Commits'
+author: 'juftin'
+
+inputs:
+  config:
+    description: 'Preset configuration to use (conventional-commits, gitmoji, or hybrid). Defaults to conventional-commits.'
+    required: false
+    default: 'conventional-commits'
+  config-name:
+    description: 'Path or name of custom release-drafter config file. Overrides config preset if provided.'
+    required: false
+    default: ''
+  publish:
+    description: 'Whether to publish the draft release immediately'
+    required: false
+    default: 'false'
+  prerelease:
+    description: 'Whether to mark the release as a prerelease'
+    required: false
+    default: 'false'
+  prerelease-identifier:
+    description: 'Prerelease identifier (e.g. alpha, beta, rc)'
+    required: false
+    default: ''
+  disable-autolabeler:
+    description: 'Whether to disable the automatic PR labeler'
+    required: false
+    default: 'false'
+  commitish:
+    description: 'Target commit ref, SHA, branch, or tag to associate with the release'
+    required: false
+    default: ''
+  version:
+    description: 'Explicit version override'
+    required: false
+    default: ''
+  header:
+    description: 'Markdown prepended before the release notes body'
+    required: false
+    default: ''
+  footer:
+    description: 'Markdown appended after the release notes body'
+    required: false
+    default: ''
+  latest:
+    description: 'How GitHub should set the release latest status (true, false, or legacy)'
+    required: false
+    default: 'true'
+  token:
+    description: 'GitHub token with contents:write and pull-requests:write permissions'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  id:
+    description: 'The release ID'
+    value: ${{ steps.release_drafter.outputs.id }}
+  name:
+    description: 'The release name'
+    value: ${{ steps.release_drafter.outputs.name }}
+  tag_name:
+    description: 'The release tag name'
+    value: ${{ steps.release_drafter.outputs.tag_name }}
+  body:
+    description: 'The release notes body'
+    value: ${{ steps.release_drafter.outputs.body }}
+  html_url:
+    description: 'The URL to the release'
+    value: ${{ steps.release_drafter.outputs.html_url }}
+  upload_url:
+    description: 'The URL for uploading release assets'
+    value: ${{ steps.release_drafter.outputs.upload_url }}
+  major_version:
+    description: 'The resolved major version number'
+    value: ${{ steps.release_drafter.outputs.major_version }}
+  minor_version:
+    description: 'The resolved minor version number'
+    value: ${{ steps.release_drafter.outputs.minor_version }}
+  patch_version:
+    description: 'The resolved patch version number'
+    value: ${{ steps.release_drafter.outputs.patch_version }}
+  resolved_version:
+    description: 'The full resolved version number'
+    value: ${{ steps.release_drafter.outputs.resolved_version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Resolve Configuration Path
+      id: resolve-config
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.config-name }}" ]; then
+          echo "config_name=${{ inputs.config-name }}" >> "$GITHUB_OUTPUT"
+        else
+          CFG="${{ inputs.config }}"
+          [[ "$CFG" != *.yml ]] && CFG="${CFG}.yml"
+          BUILTIN_PATH="${{ github.action_path }}/configs/${CFG}"
+          if [ -f "$BUILTIN_PATH" ]; then
+            echo "config_name=file:$BUILTIN_PATH" >> "$GITHUB_OUTPUT"
+          else
+            echo "config_name=${CFG}" >> "$GITHUB_OUTPUT"
+          fi
+        fi
+
+    - name: Run Release Drafter
+      id: release_drafter
+      uses: release-drafter/release-drafter@v7
+      with:
+        config-name: ${{ steps.resolve-config.outputs.config_name }}
+        publish: ${{ inputs.publish }}
+        prerelease: ${{ inputs.prerelease }}
+        prerelease-identifier: ${{ inputs.prerelease-identifier }}
+        disable-autolabeler: ${{ inputs.disable-autolabeler }}
+        commitish: ${{ inputs.commitish }}
+        version: ${{ inputs.version }}
+        header: ${{ inputs.header }}
+        footer: ${{ inputs.footer }}
+        latest: ${{ inputs.latest }}
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}

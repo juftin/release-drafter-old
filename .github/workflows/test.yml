@@ -1,0 +1,94 @@
+name: Test and Validate
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Validate YAML and Configurations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+
+      - name: Validate YAML Syntax
+        run: |
+          ruby -ryaml -e '
+            failed = false
+            Dir.glob(["**/*.yml", "**/*.yaml"]).each do |file|
+              next if file.start_with?("vendor/")
+              begin
+                YAML.load_file(file)
+                puts "✅ Valid: #{file}"
+              rescue => e
+                puts "❌ Invalid: #{file} - #{e.message}"
+                failed = true
+              end
+            end
+            exit 1 if failed
+          '
+
+      - name: Validate Release Drafter Configurations & Regexes
+        run: |
+          ruby -ryaml -e '
+            configs = Dir.glob("configs/*.yml") + Dir.glob(".github/release-drafter*.yml")
+            failed = false
+
+            configs.each do |config_file|
+              puts "Inspecting #{config_file}..."
+              data = YAML.load_file(config_file)
+
+              unless data.is_a?(Hash)
+                puts "❌ #{config_file} is not a valid YAML mapping"
+                failed = true
+                next
+              end
+
+              # Validate Autolabeler regex patterns
+              autolabelers = data["autolabeler"] || []
+              autolabelers.each do |rule|
+                label = rule["label"]
+                patterns = Array(rule["title"]) + Array(rule["branch"])
+                patterns.each do |pattern|
+                  if pattern.is_a?(String) && pattern.start_with?("/") && pattern.rindex("/") > 0
+                    last_slash = pattern.rindex("/")
+                    regex_str = pattern[1...last_slash]
+                    flags_str = pattern[(last_slash + 1)..-1] || ""
+                    flags = 0
+                    flags |= Regexp::IGNORECASE if flags_str.include?("i")
+                    flags |= Regexp::MULTILINE if flags_str.include?("m")
+                    begin
+                      Regexp.new(regex_str, flags)
+                    rescue => e
+                      puts "❌ #{config_file}: Invalid regex #{pattern} for label #{label}: #{e.message}"
+                      failed = true
+                    end
+                  end
+                end
+              end
+
+              # Validate version-resolver
+              vr = data["version-resolver"]
+              if vr
+                ["major", "minor", "patch"].each do |level|
+                  unless vr[level].is_a?(Hash) && vr[level]["labels"].is_a?(Array)
+                    puts "❌ #{config_file}: version-resolver #{level} missing labels array"
+                    failed = true
+                  end
+                end
+              end
+            end
+
+            exit 1 if failed
+            puts "✅ All configurations and regex rules are valid!"
+          '

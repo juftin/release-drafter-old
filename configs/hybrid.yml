@@ -1,0 +1,226 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
+
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+  **Full Changelog**: $PREVIOUS_TAG...$NEXT_TAG
+
+categories:
+  - title: '💥 Breaking Changes'
+    labels:
+      - 'breaking'
+      - 'boom'
+      - 'breaking-change'
+  - title: '🚀 Features & Enhancements'
+    labels:
+      - 'feat'
+      - 'feature'
+      - 'enhancement'
+      - 'sparkles'
+      - 'tada'
+      - 'rocket'
+  - title: '🐛 Bug Fixes & Security'
+    labels:
+      - 'fix'
+      - 'bug'
+      - 'bugfix'
+      - 'ambulance'
+      - 'adhesive-bandage'
+      - 'security'
+  - title: '⚡ Performance Improvements'
+    labels:
+      - 'perf'
+      - 'performance'
+      - 'zap'
+  - title: '📚 Documentation'
+    labels:
+      - 'docs'
+      - 'documentation'
+      - 'memo'
+  - title: '📦 Dependency Updates'
+    labels:
+      - 'dependencies'
+      - 'deps'
+      - 'package'
+  - title: '♻️ Code Refactoring & Style'
+    labels:
+      - 'refactor'
+      - 'recycle'
+      - 'art'
+      - 'style'
+      - 'fire'
+  - title: '🧰 Maintenance, CI & Tooling'
+    labels:
+      - 'chore'
+      - 'build'
+      - 'ci'
+      - 'construction-worker'
+      - 'green-heart'
+      - 'wrench'
+      - 'hammer'
+      - 'truck'
+  - title: '🧪 Tests'
+    labels:
+      - 'test'
+  - title: '🔄 Reverts'
+    labels:
+      - 'revert'
+      - 'rewind'
+
+version-resolver:
+  major:
+    labels:
+      - 'breaking'
+      - 'boom'
+      - 'breaking-change'
+  minor:
+    labels:
+      - 'feat'
+      - 'feature'
+      - 'enhancement'
+      - 'sparkles'
+      - 'tada'
+      - 'rocket'
+  patch:
+    labels:
+      - 'fix'
+      - 'bug'
+      - 'bugfix'
+      - 'ambulance'
+      - 'adhesive-bandage'
+      - 'security'
+      - 'perf'
+      - 'performance'
+      - 'zap'
+      - 'docs'
+      - 'documentation'
+      - 'memo'
+      - 'dependencies'
+      - 'deps'
+      - 'package'
+      - 'refactor'
+      - 'recycle'
+      - 'art'
+      - 'style'
+      - 'fire'
+      - 'chore'
+      - 'build'
+      - 'ci'
+      - 'construction-worker'
+      - 'green-heart'
+      - 'wrench'
+      - 'hammer'
+      - 'truck'
+      - 'test'
+      - 'revert'
+      - 'rewind'
+  default: patch
+
+autolabeler:
+  # Breaking Changes
+  - label: 'breaking'
+    title:
+      - '/^(:boom:|💥)/'
+      - '/^([a-z]+(\([^\)]+\))?!:|.*BREAKING CHANGE:?)/i'
+      - '/BREAKING[ -]CHANGE/i'
+    branch:
+      - '/.*breaking.*/i'
+
+  # Features
+  - label: 'feat'
+    title:
+      - '/^((:sparkles:|✨|:tada:|🎉|:rocket:|🚀)\s*)?feat(ure)?(\([^\)]+\))?:/i'
+      - '/^(:sparkles:|✨|:tada:|🎉|:rocket:|🚀)/'
+    branch:
+      - '/^feat(\/|-)/i'
+      - '/^feature(\/|-)/i'
+
+  # Fixes
+  - label: 'fix'
+    title:
+      - '/^((:bug:|🐛|:ambulance:|🚑️|🚑|:adhesive_bandage:|🩹)\s*)?(fix|bugfix|hotfix)(\([^\)]+\))?:/i'
+      - '/^(:bug:|🐛|:ambulance:|🚑️|🚑|:adhesive_bandage:|🩹)/'
+    branch:
+      - '/^fix(\/|-)/i'
+      - '/^bugfix(\/|-)/i'
+      - '/^hotfix(\/|-)/i'
+
+  # Security
+  - label: 'security'
+    title:
+      - '/^((:lock:|🔒)\s*)?sec(urity)?(\([^\)]+\))?:/i'
+      - '/^(:lock:|🔒)/'
+    branch:
+      - '/^sec(urity)?(\/|-)/i'
+
+  # Performance
+  - label: 'perf'
+    title:
+      - '/^((:zap:|⚡️|⚡)\s*)?perf(ormance)?(\([^\)]+\))?:/i'
+      - '/^(:zap:|⚡️|⚡)/'
+    branch:
+      - '/^perf(\/|-)/i'
+
+  # Documentation
+  - label: 'docs'
+    title:
+      - '/^((:memo:|📝|:books:|📚|:bulb:|💡)\s*)?docs?(\([^\)]+\))?:/i'
+      - '/^(:memo:|📝|:books:|📚|:bulb:|💡)/'
+    branch:
+      - '/^docs?(\/|-)/i'
+
+  # Refactoring
+  - label: 'refactor'
+    title:
+      - '/^((:recycle:|♻️|♻|:art:|🎨|:fire:|🔥)\s*)?refactor(\([^\)]+\))?:/i'
+      - '/^(:recycle:|♻️|♻|:art:|🎨|:fire:|🔥)/'
+    branch:
+      - '/^refactor(\/|-)/i'
+
+  # Dependencies
+  - label: 'dependencies'
+    title:
+      - '/^((:arrow_up:|⬆️|⬆|:arrow_down:|⬇️|⬇|:package:|📦️|📦|:pushpin:|📌)\s*)?(deps?|dependencies)(\([^\)]+\))?:/i'
+      - '/^(:arrow_up:|⬆️|⬆|:arrow_down:|⬇️|⬇|:package:|📦️|📦|:pushpin:|📌)/'
+      - '/^chore\(deps(-[a-z0-9]+)?\):/i'
+    branch:
+      - '/^dependabot\//i'
+      - '/^renovate\//i'
+      - '/^deps?(\/|-)/i'
+
+  # CI & Build
+  - label: 'ci'
+    title:
+      - '/^((:construction_worker:|👷|:green_heart:|💚)\s*)?(ci|build)(\([^\)]+\))?:/i'
+      - '/^(:construction_worker:|👷|:green_heart:|💚)/'
+    branch:
+      - '/^ci(\/|-)/i'
+      - '/^build(\/|-)/i'
+
+  # Chores & Maintenance
+  - label: 'chore'
+    title:
+      - '/^((:wrench:|🔧|:hammer:|🔨|:truck:|🚚|:wastebasket:|🗑️|🗑)\s*)?chore(\([^\)]+\))?:/i'
+      - '/^(:wrench:|🔧|:hammer:|🔨|:truck:|🚚|:wastebasket:|🗑️|🗑)/'
+    branch:
+      - '/^chore(\/|-)/i'
+
+  # Tests
+  - label: 'test'
+    title:
+      - '/^((:white_check_mark:|✅|:test_tube:|🧪)\s*)?tests?(\([^\)]+\))?:/i'
+      - '/^(:white_check_mark:|✅|:test_tube:|🧪)/'
+    branch:
+      - '/^tests?(\/|-)/i'
+
+  # Reverts
+  - label: 'revert'
+    title:
+      - '/^((:rewind:|⏪️|⏪)\s*)?revert(\([^\)]+\))?:/i'
+      - '/^(:rewind:|⏪️|⏪)/'
+    branch:
+      - '/^revert(\/|-)/i'

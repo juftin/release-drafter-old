@@ -1,0 +1,213 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
+
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+  **Full Changelog**: $PREVIOUS_TAG...$NEXT_TAG
+
+categories:
+  - title: '💥 Breaking Changes'
+    labels:
+      - 'breaking'
+      - 'boom'
+  - title: '✨ Features & Enhancements'
+    labels:
+      - 'sparkles'
+      - 'tada'
+      - 'rocket'
+      - 'enhancement'
+      - 'feature'
+  - title: '🐛 Bug Fixes & Security'
+    labels:
+      - 'bug'
+      - 'ambulance'
+      - 'adhesive-bandage'
+      - 'security'
+  - title: '⚡ Performance Improvements'
+    labels:
+      - 'zap'
+      - 'performance'
+  - title: '📝 Documentation'
+    labels:
+      - 'memo'
+      - 'documentation'
+  - title: '📦 Dependency Updates'
+    labels:
+      - 'dependencies'
+      - 'package'
+  - title: '♻️ Code Refactoring & Style'
+    labels:
+      - 'recycle'
+      - 'art'
+      - 'fire'
+  - title: '👷 CI, Build & Tooling'
+    labels:
+      - 'construction-worker'
+      - 'green-heart'
+      - 'wrench'
+      - 'hammer'
+      - 'truck'
+      - 'chore'
+  - title: '🧪 Tests'
+    labels:
+      - 'test'
+  - title: '⏪️ Reverts'
+    labels:
+      - 'rewind'
+      - 'revert'
+
+version-resolver:
+  major:
+    labels:
+      - 'breaking'
+      - 'boom'
+  minor:
+    labels:
+      - 'sparkles'
+      - 'tada'
+      - 'rocket'
+      - 'enhancement'
+      - 'feature'
+  patch:
+    labels:
+      - 'bug'
+      - 'ambulance'
+      - 'adhesive-bandage'
+      - 'security'
+      - 'zap'
+      - 'performance'
+      - 'memo'
+      - 'documentation'
+      - 'dependencies'
+      - 'package'
+      - 'recycle'
+      - 'art'
+      - 'fire'
+      - 'construction-worker'
+      - 'green-heart'
+      - 'wrench'
+      - 'hammer'
+      - 'truck'
+      - 'chore'
+      - 'test'
+      - 'rewind'
+      - 'revert'
+  default: patch
+
+autolabeler:
+  # Breaking Changes
+  - label: 'boom'
+    title:
+      - '/^(:boom:|💥)/'
+      - '/BREAKING CHANGE/i'
+    branch:
+      - '/.*breaking.*/i'
+
+  # Features
+  - label: 'sparkles'
+    title:
+      - '/^(:sparkles:|✨|:tada:|🎉|:rocket:|🚀)/'
+    branch:
+      - '/^feat(\/|-)/i'
+      - '/^feature(\/|-)/i'
+
+  # Bug Fixes
+  - label: 'bug'
+    title:
+      - '/^(:bug:|🐛)/'
+    branch:
+      - '/^fix(\/|-)/i'
+      - '/^bugfix(\/|-)/i'
+
+  # Critical / Hotfix
+  - label: 'ambulance'
+    title:
+      - '/^(:ambulance:|🚑️|🚑)/'
+    branch:
+      - '/^hotfix(\/|-)/i'
+
+  # Simple Fixes
+  - label: 'adhesive-bandage'
+    title:
+      - '/^(:adhesive_bandage:|🩹)/'
+
+  # Security
+  - label: 'security'
+    title:
+      - '/^(:lock:|🔒)/'
+    branch:
+      - '/^sec(urity)?(\/|-)/i'
+
+  # Performance
+  - label: 'zap'
+    title:
+      - '/^(:zap:|⚡️|⚡)/'
+    branch:
+      - '/^perf(\/|-)/i'
+
+  # Documentation
+  - label: 'memo'
+    title:
+      - '/^(:memo:|📝|:books:|📚|:bulb:|💡)/'
+    branch:
+      - '/^docs?(\/|-)/i'
+
+  # Refactoring
+  - label: 'recycle'
+    title:
+      - '/^(:recycle:|♻️|♻)/'
+    branch:
+      - '/^refactor(\/|-)/i'
+
+  # Code Style / Architecture
+  - label: 'art'
+    title:
+      - '/^(:art:|🎨)/'
+    branch:
+      - '/^style(\/|-)/i'
+
+  # Code Removal / Cleanup
+  - label: 'fire'
+    title:
+      - '/^(:fire:|🔥)/'
+
+  # Dependencies
+  - label: 'dependencies'
+    title:
+      - '/^(:arrow_up:|⬆️|⬆|:arrow_down:|⬇️|⬇|:package:|📦️|📦|:pushpin:|📌)/'
+    branch:
+      - '/^dependabot\//i'
+      - '/^renovate\//i'
+      - '/^deps?(\/|-)/i'
+
+  # CI
+  - label: 'construction-worker'
+    title:
+      - '/^(:construction_worker:|👷|:green_heart:|💚)/'
+    branch:
+      - '/^ci(\/|-)/i'
+
+  # Tooling / Configuration
+  - label: 'wrench'
+    title:
+      - '/^(:wrench:|🔧|:hammer:|🔨|:truck:|🚚|:wastebasket:|🗑️|🗑)/'
+    branch:
+      - '/^chore(\/|-)/i'
+
+  # Tests
+  - label: 'test'
+    title:
+      - '/^(:white_check_mark:|✅|:test_tube:|🧪)/'
+    branch:
+      - '/^tests?(\/|-)/i'
+
+  # Reverts
+  - label: 'rewind'
+    title:
+      - '/^(:rewind:|⏪️|⏪)/'
+    branch:
+      - '/^revert(\/|-)/i'
