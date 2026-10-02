@@ -25,8 +25,8 @@ Centralized, battle-tested [Release Drafter](https://github.com/release-drafter/
 | Preset | Description | Config File |
 | :--- | :--- | :--- |
 | `conventional-commits` *(default)* | Follows the [Conventional Commits](https://www.conventionalcommits.org/) 1.0.0 specification (`feat`, `fix`, `docs`, `perf`, `refactor`, `breaking`, etc.). | [`configs/conventional-commits.yml`](configs/conventional-commits.yml) |
-| `gitmoji` | Follows the [Gitmoji](https://gitmoji.dev/) standard using both Unicode emojis (e.g., `✨`, `🐛`, `💥`) and shortcodes (`:sparkles:`, `:bug:`, `:boom:`). | [`configs/gitmoji.yml`](configs/gitmoji.yml) |
-| `hybrid` | Combines Conventional Commits and Gitmoji, supporting either style or mixed formats (e.g., `✨ feat: ...`). | [`configs/hybrid.yml`](configs/hybrid.yml) |
+| `gitmoji` | Full coverage of all 75 official [carloscuesta/gitmoji](https://github.com/carloscuesta/gitmoji) types using both Unicode emojis (e.g., `✨`, `🐛`, `💥`) and shortcodes (`:sparkles:`, `:bug:`, `:boom:`). | [`configs/gitmoji.yml`](configs/gitmoji.yml) |
+| `hybrid` | Combines Conventional Commits and all 75 Gitmojis, supporting either style or mixed formats (e.g., `✨ feat: ...`). | [`configs/hybrid.yml`](configs/hybrid.yml) |
 
 ---
 
