@@ -54,6 +54,10 @@ inputs:
     description: 'How GitHub should set the release latest status (true, false, or legacy)'
     required: false
     default: 'true'
+  include-commits:
+    description: 'Whether to parse and include direct Git commits in release notes when no pull requests exist. Defaults to true.'
+    required: false
+    default: 'true'
   token:
     description: 'GitHub token with contents:write and pull-requests:write permissions'
     required: false
@@ -100,6 +104,7 @@ runs:
       run: |
         if [ -n "${{ inputs.config-name }}" ]; then
           echo "config_name=${{ inputs.config-name }}" >> "$GITHUB_OUTPUT"
+          echo "local_config_path=${GITHUB_WORKSPACE:-.}/.github/${{ inputs.config-name }}" >> "$GITHUB_OUTPUT"
           echo "cleanup=false" >> "$GITHUB_OUTPUT"
         else
           CFG="${{ inputs.config }}"
@@ -111,10 +116,12 @@ runs:
             TMP_FILE=".release-drafter-preset-${CFG}"
             cp "$BUILTIN_PATH" "$TARGET_DIR/$TMP_FILE"
             echo "config_name=file:$TMP_FILE" >> "$GITHUB_OUTPUT"
+            echo "local_config_path=$BUILTIN_PATH" >> "$GITHUB_OUTPUT"
             echo "cleanup=true" >> "$GITHUB_OUTPUT"
             echo "cleanup_file=$TARGET_DIR/$TMP_FILE" >> "$GITHUB_OUTPUT"
           else
             echo "config_name=${CFG}" >> "$GITHUB_OUTPUT"
+            echo "local_config_path=${GITHUB_WORKSPACE:-.}/.github/${CFG}" >> "$GITHUB_OUTPUT"
             echo "cleanup=false" >> "$GITHUB_OUTPUT"
           fi
         fi
@@ -135,6 +142,23 @@ runs:
         latest: ${{ inputs.latest }}
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
+
+    - name: Parse Direct Commits and Enrich Release Notes
+      if: inputs.include-commits == 'true' && steps.release_drafter.outputs.id != ''
+      shell: bash
+      run: |
+        CFG_PATH="${{ steps.resolve-config.outputs.local_config_path }}"
+        [ ! -f "$CFG_PATH" ] && CFG_PATH="${{ github.action_path }}/configs/gitmoji.yaml"
+        DRY_RUN_ARG=""
+        if [ "${{ inputs.dry-run }}" = "true" ]; then
+          DRY_RUN_ARG="--dry-run"
+        fi
+        python3 "${{ github.action_path }}/scripts/parse_commits.py" \
+          --config "$CFG_PATH" \
+          --repo "${{ github.repository }}" \
+          --release-id "${{ steps.release_drafter.outputs.id }}" \
+          --token "${{ inputs.token }}" \
+          $DRY_RUN_ARG
 
     - name: Cleanup Temporary Configuration
       if: always()

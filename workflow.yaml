@@ -63,6 +63,11 @@ on:
         type: string
         default: 'true'
         required: false
+      include-commits:
+        description: 'Whether to parse and include direct Git commits in release notes when no pull requests exist. Defaults to true.'
+        type: boolean
+        default: true
+        required: false
     secrets:
       token:
         description: 'GitHub token with contents:write and pull-requests:write permissions'
@@ -154,6 +159,7 @@ jobs:
           path: ${{ runner.temp }}/release-drafter-configs
           sparse-checkout: |
             configs
+            scripts
           sparse-checkout-cone-mode: false
 
       - name: Resolve Configuration Target
@@ -168,15 +174,18 @@ jobs:
               TMP_FILE=".release-drafter-workflow-${{ steps.config-source.outputs.config_file }}"
               cp "$CONFIG_PATH" "$TARGET_DIR/$TMP_FILE"
               echo "config_name=file:$TMP_FILE" >> "$GITHUB_OUTPUT"
+              echo "local_config_path=$CONFIG_PATH" >> "$GITHUB_OUTPUT"
               echo "cleanup=true" >> "$GITHUB_OUTPUT"
               echo "cleanup_file=$TARGET_DIR/$TMP_FILE" >> "$GITHUB_OUTPUT"
             else
               echo "Warning: $CONFIG_PATH not found, falling back to ${{ steps.config-source.outputs.config_file }}"
               echo "config_name=${{ steps.config-source.outputs.config_file }}" >> "$GITHUB_OUTPUT"
+              echo "local_config_path=${GITHUB_WORKSPACE:-.}/.github/${{ steps.config-source.outputs.config_file }}" >> "$GITHUB_OUTPUT"
               echo "cleanup=false" >> "$GITHUB_OUTPUT"
             fi
           else
             echo "config_name=${{ steps.config-source.outputs.config_name }}" >> "$GITHUB_OUTPUT"
+            echo "local_config_path=${GITHUB_WORKSPACE:-.}/.github/${{ steps.config-source.outputs.config_name }}" >> "$GITHUB_OUTPUT"
             echo "cleanup=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -196,6 +205,25 @@ jobs:
           latest: ${{ inputs.latest }}
         env:
           GITHUB_TOKEN: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+
+      - name: Parse Direct Commits and Enrich Release Notes
+        if: inputs.include-commits && steps.release_drafter.outputs.id != ''
+        shell: bash
+        run: |
+          CFG_PATH="${{ steps.resolve-target.outputs.local_config_path }}"
+          SCRIPT_PATH="${{ runner.temp }}/release-drafter-configs/scripts/parse_commits.py"
+          if [ -f "$SCRIPT_PATH" ]; then
+            DRY_RUN_ARG=""
+            if [ "${{ inputs.dry-run }}" = "true" ]; then
+              DRY_RUN_ARG="--dry-run"
+            fi
+            python3 "$SCRIPT_PATH" \
+              --config "$CFG_PATH" \
+              --repo "${{ github.repository }}" \
+              --release-id "${{ steps.release_drafter.outputs.id }}" \
+              --token "${{ secrets.token || secrets.GITHUB_TOKEN }}" \
+              $DRY_RUN_ARG
+          fi
 
       - name: Cleanup Temporary Configuration
         if: always()

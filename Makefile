@@ -29,6 +29,10 @@ test: lint
 			end; \
 		end; \
 		puts "✅ All configurations passed validation!"'
+	@echo "==> Testing direct commits parser..."
+	@python3 scripts/parse_commits.py --config configs/gitmoji.yaml --dry-run > /dev/null
+	@python3 scripts/parse_commits.py --config configs/conventional-commits.yaml --dry-run > /dev/null
+	@echo "✅ Direct commit parser passed validation!"
 
 # Synchronize Gitmoji configs from data/gitmojis.json
 sync:

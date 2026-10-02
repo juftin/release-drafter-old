@@ -153,7 +153,7 @@ Then run the standard release-drafter action in your workflow:
 | `publish` | `boolean` | `false` | Publishes draft release immediately upon execution. |
 | `prerelease` | `boolean` | `false` | Marks the release as a prerelease. |
 | `prerelease-identifier` | `string` | `''` | Prerelease identifier (e.g. `alpha`, `beta`, `rc`). |
-| `disable-autolabeler` | `boolean` | `false` | Disables automatic pull request labeling. |
+| `include-commits` | `boolean` | `true` | Whether to parse and include direct Git commits when no pull requests exist. |
 | `commitish` | `string` | `''` | Target commit ref, SHA, branch, or tag for the release. |
 | `version` | `string` | `''` | Explicit version override. |
 | `header` | `string` | `''` | Markdown prepended before release notes body. |
