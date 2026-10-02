@@ -106,12 +106,13 @@ runs:
           [[ "$CFG" != *.yaml ]] && CFG="${CFG}.yaml"
           BUILTIN_PATH="${{ github.action_path }}/configs/${CFG}"
           if [ -f "$BUILTIN_PATH" ]; then
-            TARGET_DIR="${GITHUB_WORKSPACE:-.}/.release-drafter-tmp"
+            TARGET_DIR="${GITHUB_WORKSPACE:-.}/.github"
             mkdir -p "$TARGET_DIR"
-            cp "$BUILTIN_PATH" "$TARGET_DIR/$CFG"
-            echo "config_name=file:.release-drafter-tmp/$CFG" >> "$GITHUB_OUTPUT"
+            TMP_FILE=".release-drafter-preset-${CFG}"
+            cp "$BUILTIN_PATH" "$TARGET_DIR/$TMP_FILE"
+            echo "config_name=file:$TMP_FILE" >> "$GITHUB_OUTPUT"
             echo "cleanup=true" >> "$GITHUB_OUTPUT"
-            echo "cleanup_dir=$TARGET_DIR" >> "$GITHUB_OUTPUT"
+            echo "cleanup_file=$TARGET_DIR/$TMP_FILE" >> "$GITHUB_OUTPUT"
           else
             echo "config_name=${CFG}" >> "$GITHUB_OUTPUT"
             echo "cleanup=false" >> "$GITHUB_OUTPUT"
@@ -140,5 +141,5 @@ runs:
       shell: bash
       run: |
         if [ "${{ steps.resolve-config.outputs.cleanup }}" = "true" ]; then
-          rm -rf "${{ steps.resolve-config.outputs.cleanup_dir }}"
+          rm -f "${{ steps.resolve-config.outputs.cleanup_file }}"
         fi

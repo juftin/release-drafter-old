@@ -163,13 +163,13 @@ jobs:
           if [ "${{ steps.config-source.outputs.needs_checkout }}" = "true" ]; then
             CONFIG_PATH="${{ runner.temp }}/release-drafter-configs/configs/${{ steps.config-source.outputs.config_file }}"
             if [ -f "$CONFIG_PATH" ]; then
-              TARGET_DIR="${GITHUB_WORKSPACE:-.}/.release-drafter-tmp"
+              TARGET_DIR="${GITHUB_WORKSPACE:-.}/.github"
               mkdir -p "$TARGET_DIR"
-              CFG="${{ steps.config-source.outputs.config_file }}"
-              cp "$CONFIG_PATH" "$TARGET_DIR/$CFG"
-              echo "config_name=file:.release-drafter-tmp/$CFG" >> "$GITHUB_OUTPUT"
+              TMP_FILE=".release-drafter-workflow-${{ steps.config-source.outputs.config_file }}"
+              cp "$CONFIG_PATH" "$TARGET_DIR/$TMP_FILE"
+              echo "config_name=file:$TMP_FILE" >> "$GITHUB_OUTPUT"
               echo "cleanup=true" >> "$GITHUB_OUTPUT"
-              echo "cleanup_dir=$TARGET_DIR" >> "$GITHUB_OUTPUT"
+              echo "cleanup_file=$TARGET_DIR/$TMP_FILE" >> "$GITHUB_OUTPUT"
             else
               echo "Warning: $CONFIG_PATH not found, falling back to ${{ steps.config-source.outputs.config_file }}"
               echo "config_name=${{ steps.config-source.outputs.config_file }}" >> "$GITHUB_OUTPUT"
@@ -202,5 +202,5 @@ jobs:
         shell: bash
         run: |
           if [ "${{ steps.resolve-target.outputs.cleanup }}" = "true" ]; then
-            rm -rf "${{ steps.resolve-target.outputs.cleanup_dir }}"
+            rm -f "${{ steps.resolve-target.outputs.cleanup_file }}"
           fi
