@@ -101,8 +101,25 @@ def parse_yaml_fallback(content: str) -> Dict[str, Any]:
     return result
 
 
+def ensure_full_git_history() -> None:
+    """Ensure the Git repository has full history and tags for accurate commit parsing."""
+    try:
+        is_shallow = subprocess.check_output(
+            ["git", "rev-parse", "--is-shallow-repository"],
+            stderr=subprocess.DEVNULL,
+            text=True,
+        ).strip()
+        if is_shallow == "true":
+            print("Shallow repository detected; fetching full history...")
+            subprocess.run(["git", "fetch", "--unshallow"], check=False, stderr=subprocess.DEVNULL)
+        subprocess.run(["git", "fetch", "--tags"], check=False, stderr=subprocess.DEVNULL)
+    except Exception:
+        pass
+
+
 def get_git_commit_range() -> Tuple[Optional[str], str]:
     """Determine the previous tag and commit range to inspect."""
+    ensure_full_git_history()
     try:
         cmd = ["git", "describe", "--tags", "--abbrev=0"]
         prev_tag = subprocess.check_output(cmd, stderr=subprocess.DEVNULL, text=True).strip()
