@@ -69,13 +69,13 @@ outputs:
     value: ${{ steps.release_drafter.outputs.id }}
   name:
     description: 'The release name'
-    value: ${{ steps.release_drafter.outputs.name }}
+    value: ${{ steps.commit_parser.outputs.name || steps.release_drafter.outputs.name }}
   tag_name:
     description: 'The release tag name'
-    value: ${{ steps.release_drafter.outputs.tag_name }}
+    value: ${{ steps.commit_parser.outputs.tag_name || steps.release_drafter.outputs.tag_name }}
   body:
     description: 'The release notes body'
-    value: ${{ steps.release_drafter.outputs.body }}
+    value: ${{ steps.commit_parser.outputs.body || steps.release_drafter.outputs.body }}
   html_url:
     description: 'The URL to the release'
     value: ${{ steps.release_drafter.outputs.html_url }}
@@ -84,16 +84,19 @@ outputs:
     value: ${{ steps.release_drafter.outputs.upload_url }}
   major_version:
     description: 'The resolved major version number'
-    value: ${{ steps.release_drafter.outputs.major_version }}
+    value: ${{ steps.commit_parser.outputs.major_version || steps.release_drafter.outputs.major_version }}
   minor_version:
     description: 'The resolved minor version number'
-    value: ${{ steps.release_drafter.outputs.minor_version }}
+    value: ${{ steps.commit_parser.outputs.minor_version || steps.release_drafter.outputs.minor_version }}
   patch_version:
     description: 'The resolved patch version number'
-    value: ${{ steps.release_drafter.outputs.patch_version }}
+    value: ${{ steps.commit_parser.outputs.patch_version || steps.release_drafter.outputs.patch_version }}
   resolved_version:
     description: 'The full resolved version number'
-    value: ${{ steps.release_drafter.outputs.resolved_version }}
+    value: ${{ steps.commit_parser.outputs.resolved_version || steps.release_drafter.outputs.resolved_version }}
+  direct_commit_count:
+    description: 'The number of direct commits parsed and merged'
+    value: ${{ steps.commit_parser.outputs.direct_commit_count || '0' }}
 
 runs:
   using: 'composite'
@@ -132,6 +135,7 @@ runs:
       with:
         config-name: ${{ steps.resolve-config.outputs.config_name }}
         dry-run: ${{ inputs.dry-run }}
+        disable-autolabeler: ${{ inputs.disable-autolabeler }}
         publish: ${{ inputs.publish }}
         prerelease: ${{ inputs.prerelease }}
         prerelease-identifier: ${{ inputs.prerelease-identifier }}
@@ -144,6 +148,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.token }}
 
     - name: Parse Direct Commits and Enrich Release Notes
+      id: commit_parser
       if: inputs.include-commits == 'true' && steps.release_drafter.outputs.id != ''
       shell: bash
       run: |

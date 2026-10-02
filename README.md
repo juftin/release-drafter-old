@@ -174,6 +174,7 @@ Then run the standard release-drafter action in your workflow:
 | `minor_version` | Resolved SemVer minor version |
 | `patch_version` | Resolved SemVer patch version |
 | `resolved_version` | Complete resolved version string |
+| `direct_commit_count` | Number of direct commits parsed and merged |
 
 ---
 

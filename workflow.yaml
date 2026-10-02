@@ -103,6 +103,9 @@ on:
       resolved_version:
         description: 'The full resolved version number'
         value: ${{ jobs.draft.outputs.resolved_version }}
+      direct_commit_count:
+        description: 'The number of direct commits parsed and merged'
+        value: ${{ jobs.draft.outputs.direct_commit_count }}
 
 jobs:
   draft:
@@ -113,15 +116,16 @@ jobs:
       pull-requests: write
     outputs:
       id: ${{ steps.release_drafter.outputs.id }}
-      name: ${{ steps.release_drafter.outputs.name }}
-      tag_name: ${{ steps.release_drafter.outputs.tag_name }}
-      body: ${{ steps.release_drafter.outputs.body }}
+      name: ${{ steps.commit_parser.outputs.name || steps.release_drafter.outputs.name }}
+      tag_name: ${{ steps.commit_parser.outputs.tag_name || steps.release_drafter.outputs.tag_name }}
+      body: ${{ steps.commit_parser.outputs.body || steps.release_drafter.outputs.body }}
       html_url: ${{ steps.release_drafter.outputs.html_url }}
       upload_url: ${{ steps.release_drafter.outputs.upload_url }}
-      major_version: ${{ steps.release_drafter.outputs.major_version }}
-      minor_version: ${{ steps.release_drafter.outputs.minor_version }}
-      patch_version: ${{ steps.release_drafter.outputs.patch_version }}
-      resolved_version: ${{ steps.release_drafter.outputs.resolved_version }}
+      major_version: ${{ steps.commit_parser.outputs.major_version || steps.release_drafter.outputs.major_version }}
+      minor_version: ${{ steps.commit_parser.outputs.minor_version || steps.release_drafter.outputs.minor_version }}
+      patch_version: ${{ steps.commit_parser.outputs.patch_version || steps.release_drafter.outputs.patch_version }}
+      resolved_version: ${{ steps.commit_parser.outputs.resolved_version || steps.release_drafter.outputs.resolved_version }}
+      direct_commit_count: ${{ steps.commit_parser.outputs.direct_commit_count || '0' }}
     steps:
       - name: Determine Configuration Source
         id: config-source
@@ -207,6 +211,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.token || secrets.GITHUB_TOKEN }}
 
       - name: Parse Direct Commits and Enrich Release Notes
+        id: commit_parser
         if: inputs.include-commits && steps.release_drafter.outputs.id != ''
         shell: bash
         run: |
