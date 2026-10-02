@@ -470,6 +470,8 @@ def categorize_commits(
             continue
         category_order.append(title)
         labels = cat.get("labels", [])
+        if not labels and isinstance(cat.get("when"), dict):
+            labels = cat["when"].get("labels", [])
         if isinstance(labels, str):
             labels = [labels]
         for lbl in labels:

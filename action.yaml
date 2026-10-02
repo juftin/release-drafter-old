@@ -135,7 +135,6 @@ runs:
       with:
         config-name: ${{ steps.resolve-config.outputs.config_name }}
         dry-run: ${{ inputs.dry-run }}
-        disable-autolabeler: ${{ inputs.disable-autolabeler }}
         publish: ${{ inputs.publish }}
         prerelease: ${{ inputs.prerelease }}
         prerelease-identifier: ${{ inputs.prerelease-identifier }}
