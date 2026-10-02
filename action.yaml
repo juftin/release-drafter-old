@@ -100,14 +100,22 @@ runs:
       run: |
         if [ -n "${{ inputs.config-name }}" ]; then
           echo "config_name=${{ inputs.config-name }}" >> "$GITHUB_OUTPUT"
+          echo "cleanup=false" >> "$GITHUB_OUTPUT"
         else
           CFG="${{ inputs.config }}"
           [[ "$CFG" != *.yaml ]] && CFG="${CFG}.yaml"
           BUILTIN_PATH="${{ github.action_path }}/configs/${CFG}"
           if [ -f "$BUILTIN_PATH" ]; then
-            echo "config_name=file:$BUILTIN_PATH" >> "$GITHUB_OUTPUT"
+            TARGET_DIR="${GITHUB_WORKSPACE:-.}/.github"
+            mkdir -p "$TARGET_DIR"
+            TMP_NAME=".release-drafter-preset-${CFG}"
+            cp "$BUILTIN_PATH" "$TARGET_DIR/$TMP_NAME"
+            echo "config_name=$TMP_NAME" >> "$GITHUB_OUTPUT"
+            echo "cleanup=true" >> "$GITHUB_OUTPUT"
+            echo "cleanup_file=$TARGET_DIR/$TMP_NAME" >> "$GITHUB_OUTPUT"
           else
             echo "config_name=${CFG}" >> "$GITHUB_OUTPUT"
+            echo "cleanup=false" >> "$GITHUB_OUTPUT"
           fi
         fi
 
@@ -120,7 +128,6 @@ runs:
         publish: ${{ inputs.publish }}
         prerelease: ${{ inputs.prerelease }}
         prerelease-identifier: ${{ inputs.prerelease-identifier }}
-        disable-autolabeler: ${{ inputs.disable-autolabeler }}
         commitish: ${{ inputs.commitish }}
         version: ${{ inputs.version }}
         header: ${{ inputs.header }}
@@ -128,3 +135,11 @@ runs:
         latest: ${{ inputs.latest }}
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
+
+    - name: Cleanup Temporary Configuration
+      if: always()
+      shell: bash
+      run: |
+        if [ "${{ steps.resolve-config.outputs.cleanup }}" = "true" ]; then
+          rm -f "${{ steps.resolve-config.outputs.cleanup_file }}"
+        fi

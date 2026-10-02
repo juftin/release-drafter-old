@@ -163,13 +163,21 @@ jobs:
           if [ "${{ steps.config-source.outputs.needs_checkout }}" = "true" ]; then
             CONFIG_PATH="${{ runner.temp }}/release-drafter-configs/configs/${{ steps.config-source.outputs.config_file }}"
             if [ -f "$CONFIG_PATH" ]; then
-              echo "config_name=file:$CONFIG_PATH" >> "$GITHUB_OUTPUT"
+              TARGET_DIR="${GITHUB_WORKSPACE:-.}/.github"
+              mkdir -p "$TARGET_DIR"
+              TMP_NAME=".release-drafter-workflow-${{ steps.config-source.outputs.config_file }}"
+              cp "$CONFIG_PATH" "$TARGET_DIR/$TMP_NAME"
+              echo "config_name=$TMP_NAME" >> "$GITHUB_OUTPUT"
+              echo "cleanup=true" >> "$GITHUB_OUTPUT"
+              echo "cleanup_file=$TARGET_DIR/$TMP_NAME" >> "$GITHUB_OUTPUT"
             else
               echo "Warning: $CONFIG_PATH not found, falling back to ${{ steps.config-source.outputs.config_file }}"
               echo "config_name=${{ steps.config-source.outputs.config_file }}" >> "$GITHUB_OUTPUT"
+              echo "cleanup=false" >> "$GITHUB_OUTPUT"
             fi
           else
             echo "config_name=${{ steps.config-source.outputs.config_name }}" >> "$GITHUB_OUTPUT"
+            echo "cleanup=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Run Release Drafter
@@ -181,7 +189,6 @@ jobs:
           publish: ${{ inputs.publish }}
           prerelease: ${{ inputs.prerelease }}
           prerelease-identifier: ${{ inputs.prerelease-identifier }}
-          disable-autolabeler: ${{ inputs.disable-autolabeler }}
           commitish: ${{ inputs.commitish }}
           version: ${{ inputs.version }}
           header: ${{ inputs.header }}
@@ -189,3 +196,11 @@ jobs:
           latest: ${{ inputs.latest }}
         env:
           GITHUB_TOKEN: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+
+      - name: Cleanup Temporary Configuration
+        if: always()
+        shell: bash
+        run: |
+          if [ "${{ steps.resolve-target.outputs.cleanup }}" = "true" ]; then
+            rm -f "${{ steps.resolve-target.outputs.cleanup_file }}"
+          fi
