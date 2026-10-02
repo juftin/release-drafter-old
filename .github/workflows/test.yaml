@@ -35,7 +35,7 @@ jobs:
         run: |
           ruby -ryaml -e '
             failed = false
-            Dir.glob(["**/*.yml", "**/*.yaml"]).each do |file|
+            Dir.glob("**/*.yaml").each do |file|
               next if file.start_with?("vendor/")
               begin
                 YAML.load_file(file)
@@ -51,7 +51,7 @@ jobs:
       - name: Validate Release Drafter Configurations & Regexes
         run: |
           ruby -ryaml -e '
-            configs = Dir.glob("configs/*.y*ml") + Dir.glob(".github/release-drafter*.y*ml")
+            configs = Dir.glob("configs/*.yaml") + Dir.glob(".github/release-drafter*.yaml")
             failed = false
 
             configs.each do |config_file|

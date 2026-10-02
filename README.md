@@ -1,7 +1,7 @@
 # Release Drafter Configurations & GitHub Action
 
-[![Test and Validate](https://github.com/juftin/release-drafter/actions/workflows/test.yml/badge.svg)](https://github.com/juftin/release-drafter/actions/workflows/test.yml)
-[![Release Drafter](https://github.com/juftin/release-drafter/actions/workflows/draft-release.yml/badge.svg)](https://github.com/juftin/release-drafter/actions/workflows/draft-release.yml)
+[![Test and Validate](https://github.com/juftin/release-drafter/actions/workflows/test.yaml/badge.svg)](https://github.com/juftin/release-drafter/actions/workflows/test.yaml)
+[![Release Drafter](https://github.com/juftin/release-drafter/actions/workflows/release.yaml/badge.svg)](https://github.com/juftin/release-drafter/actions/workflows/release.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Centralized, battle-tested [Release Drafter](https://github.com/release-drafter/release-drafter) configurations and reusable GitHub Actions. Supports **Conventional Commits**, **Gitmoji**, and a **Hybrid** preset with automatic PR autolabeling, SemVer version resolution, and formatted changelogs.
@@ -14,9 +14,9 @@ Centralized, battle-tested [Release Drafter](https://github.com/release-drafter/
 - 🏷️ **Intelligent Autolabeling**: Automatically tags PRs based on title regex (both unicode emojis and `:shortcode:` formats) and branch prefixes.
 - 🔢 **Semantic Versioning**: Automatically resolves major, minor, and patch bumps from PR labels and commit types.
 - 🚀 **Multiple Ways to Consume**:
-  1. **[Reusable Workflow](#method-1-reusable-workflow-recommended)**: Call directly via `uses: juftin/release-drafter/.github/workflows/release-drafter.yml@main`.
-  2. **[Composite GitHub Action](#method-2-composite-action)**: Integrate into custom workflows using `uses: juftin/release-drafter@main`.
-  3. **[Config Inheritance (`_extends`)](#method-3-config-inheritance-_extends)**: Extend directly in `.github/release-drafter.yml`.
+  1. **[Reusable Workflow](#method-1-reusable-workflow-recommended)**: Call directly via `uses: juftin/release-drafter/release-drafter.yaml@v1`.
+  2. **[Composite GitHub Action](#method-2-composite-action)**: Integrate into custom workflows using `uses: juftin/release-drafter@v1`.
+  3. **[Config Inheritance (`_extends`)](#method-3-config-inheritance-_extends)**: Extend directly in `.github/release-drafter.yaml`.
 
 ---
 
@@ -24,9 +24,9 @@ Centralized, battle-tested [Release Drafter](https://github.com/release-drafter/
 
 | Preset | Description | Config File |
 | :--- | :--- | :--- |
-| `conventional-commits` *(default)* | Follows the [Conventional Commits](https://www.conventionalcommits.org/) 1.0.0 specification (`feat`, `fix`, `docs`, `perf`, `refactor`, `breaking`, etc.). | [`configs/conventional-commits.yml`](configs/conventional-commits.yml) |
-| `gitmoji` | Full coverage of all 75 official [carloscuesta/gitmoji](https://github.com/carloscuesta/gitmoji) types using both Unicode emojis (e.g., `✨`, `🐛`, `💥`) and shortcodes (`:sparkles:`, `:bug:`, `:boom:`). | [`configs/gitmoji.yml`](configs/gitmoji.yml) |
-| `hybrid` | Combines Conventional Commits and all 75 Gitmojis, supporting either style or mixed formats (e.g., `✨ feat: ...`). | [`configs/hybrid.yml`](configs/hybrid.yml) |
+| `conventional-commits` *(default)* | Follows the [Conventional Commits](https://www.conventionalcommits.org/) 1.0.0 specification (`feat`, `fix`, `docs`, `perf`, `refactor`, `breaking`, etc.). | [`configs/conventional-commits.yaml`](configs/conventional-commits.yaml) |
+| `gitmoji` | Full coverage of all 75 official [carloscuesta/gitmoji](https://github.com/carloscuesta/gitmoji) types using both Unicode emojis (e.g., `✨`, `🐛`, `💥`) and shortcodes (`:sparkles:`, `:bug:`, `:boom:`). | [`configs/gitmoji.yaml`](configs/gitmoji.yaml) |
+| `hybrid` | Combines Conventional Commits and all 75 Gitmojis, supporting either style or mixed formats (e.g., `✨ feat: ...`). | [`configs/hybrid.yaml`](configs/hybrid.yaml) |
 
 ---
 
@@ -34,7 +34,7 @@ Centralized, battle-tested [Release Drafter](https://github.com/release-drafter/
 
 ### Method 1: Reusable Workflow (Recommended)
 
-Add a workflow in your caller repository at `.github/workflows/release-drafter.yml`:
+Add a workflow in your caller repository at `.github/workflows/release.yaml`:
 
 ```yaml
 name: Release Drafter
@@ -110,11 +110,11 @@ jobs:
 
 If you want to use the upstream `release-drafter/release-drafter` action directly and extend one of the shared configurations:
 
-Create `.github/release-drafter.yml` in your repository:
+Create `.github/release-drafter.yaml` in your repository:
 
 ```yaml
 # Inherit all categories, autolabeler regex, and version resolvers
-_extends: juftin/release-drafter:.github/release-drafter-conventional-commits.yml
+_extends: juftin/release-drafter:.github/release-drafter-conventional-commits.yaml
 
 # (Optional) Override or add custom settings
 tag-prefix: 'v'
@@ -123,7 +123,7 @@ tag-prefix: 'v'
 For the Gitmoji preset:
 
 ```yaml
-_extends: juftin/release-drafter:.github/release-drafter-gitmoji.yml
+_extends: juftin/release-drafter:.github/release-drafter-gitmoji.yaml
 ```
 
 Or for the default / hybrid preset:

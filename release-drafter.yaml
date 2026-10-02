@@ -141,7 +141,7 @@ jobs:
             echo "ref=$REF" >> "$GITHUB_OUTPUT"
 
             CONFIG_FILE="${{ inputs.config }}"
-            [[ "$CONFIG_FILE" != *.yml ]] && CONFIG_FILE="${CONFIG_FILE}.yml"
+            [[ "$CONFIG_FILE" != *.yaml ]] && CONFIG_FILE="${CONFIG_FILE}.yaml"
             echo "config_file=$CONFIG_FILE" >> "$GITHUB_OUTPUT"
           fi
 

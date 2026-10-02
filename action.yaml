@@ -102,7 +102,7 @@ runs:
           echo "config_name=${{ inputs.config-name }}" >> "$GITHUB_OUTPUT"
         else
           CFG="${{ inputs.config }}"
-          [[ "$CFG" != *.yml ]] && CFG="${CFG}.yml"
+          [[ "$CFG" != *.yaml ]] && CFG="${CFG}.yaml"
           BUILTIN_PATH="${{ github.action_path }}/configs/${CFG}"
           if [ -f "$BUILTIN_PATH" ]; then
             echo "config_name=file:$BUILTIN_PATH" >> "$GITHUB_OUTPUT"

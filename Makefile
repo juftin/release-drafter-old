@@ -5,7 +5,7 @@ all: lint test
 # Lint and validate all YAML configurations and regex patterns
 lint:
 	@echo "==> Validating YAML files..."
-	@ruby -ryaml -e 'Dir.glob(["**/*.yml", "**/*.yaml"]).each { |f| next if f.start_with?("vendor/"); YAML.load_file(f); puts "✅ Valid: #{f}" }'
+	@ruby -ryaml -e 'Dir.glob("**/*.yaml").each { |f| next if f.start_with?("vendor/"); YAML.load_file(f); puts "✅ Valid: #{f}" }'
 
 # Run full configuration test suite
 test: lint
@@ -14,7 +14,7 @@ test: lint
 	@git diff --exit-code configs/ .github/release-drafter* || (echo "❌ Out of sync! Run 'make sync' and commit the changes." && exit 1)
 	@echo "==> Running deep configuration and regex validation..."
 	@ruby -ryaml -e '\
-		configs = Dir.glob("configs/*.y*ml") + Dir.glob(".github/release-drafter*.y*ml"); \
+		configs = Dir.glob("configs/*.yaml") + Dir.glob(".github/release-drafter*.yaml"); \
 		configs.each do |f| \
 			data = YAML.load_file(f); \
 			(data["autolabeler"] || []).each do |rule| \
