@@ -30,6 +30,7 @@ test: lint
 		end; \
 		puts "✅ All configurations passed validation!"'
 	@echo "==> Testing direct commits parser..."
+	@python3 tests/test_parse_commits.py
 	@python3 scripts/parse_commits.py --config configs/gitmoji.yaml --dry-run > /dev/null
 	@python3 scripts/parse_commits.py --config configs/conventional-commits.yaml --dry-run > /dev/null
 	@echo "✅ Direct commit parser passed validation!"
