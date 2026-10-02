@@ -24,7 +24,7 @@ jobs:
       - name: Verify Gitmoji Config Generation Sync
         run: |
           python3 scripts/generate_gitmoji.py
-          git diff --exit-code
+          git diff --exit-code configs/ .github/release-drafter*
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -51,7 +51,7 @@ jobs:
       - name: Validate Release Drafter Configurations & Regexes
         run: |
           ruby -ryaml -e '
-            configs = Dir.glob("configs/*.yml") + Dir.glob(".github/release-drafter*.yml")
+            configs = Dir.glob("configs/*.y*ml") + Dir.glob(".github/release-drafter*.y*ml")
             failed = false
 
             configs.each do |config_file|
@@ -102,3 +102,38 @@ jobs:
             exit 1 if failed
             puts "✅ All configurations and regex rules are valid!"
           '
+
+  test-action:
+    name: Test Composite Action (Dry Run)
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test Composite Action (Conventional Commits)
+        uses: ./
+        with:
+          config: conventional-commits
+          dry-run: 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Test Composite Action (Gitmoji)
+        uses: ./
+        with:
+          config: gitmoji
+          dry-run: 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Test Composite Action (Hybrid)
+        uses: ./
+        with:
+          config: hybrid
+          dry-run: 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

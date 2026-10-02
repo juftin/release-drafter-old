@@ -13,6 +13,11 @@ on:
         type: string
         default: ''
         required: false
+      dry-run:
+        description: 'Prevents writing to GitHub Releases; logs drafted output instead'
+        type: boolean
+        default: false
+        required: false
       publish:
         description: 'Whether to publish the draft release immediately'
         type: boolean
@@ -172,6 +177,7 @@ jobs:
         uses: release-drafter/release-drafter@v7
         with:
           config-name: ${{ steps.resolve-target.outputs.config_name }}
+          dry-run: ${{ inputs.dry-run }}
           publish: ${{ inputs.publish }}
           prerelease: ${{ inputs.prerelease }}
           prerelease-identifier: ${{ inputs.prerelease-identifier }}

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Release Drafter Documentation
+    url: https://github.com/release-drafter/release-drafter
+    about: Official documentation for upstream Release Drafter.
+  - name: Gitmoji Specification
+    url: https://gitmoji.dev/
+    about: The official Gitmoji guide and list of emojis.
+  - name: Conventional Commits
+    url: https://www.conventionalcommits.org/
+    about: The Conventional Commits 1.0.0 specification.

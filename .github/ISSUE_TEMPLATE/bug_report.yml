@@ -1,0 +1,53 @@
+name: Bug Report
+description: Create a report to help us improve Release Drafter
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: input
+    id: version
+    attributes:
+      label: Release Drafter Version / Ref
+      description: What version or ref are you using? (e.g., v1, main, specific SHA)
+      placeholder: v1
+    validations:
+      required: true
+  - type: dropdown
+    id: preset
+    attributes:
+      label: Preset / Configuration
+      description: Which preset or configuration are you using?
+      options:
+        - conventional-commits
+        - gitmoji
+        - hybrid
+        - custom config-name
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Steps or PR title/branch to reproduce the behavior.
+      placeholder: |
+        1. Create PR with title '...'
+        2. Run workflow
+        3. Release Drafter labels as '...' instead of '...'
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true

@@ -1,0 +1,564 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
+
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+  **Full Changelog**: $PREVIOUS_TAG...$NEXT_TAG
+
+categories:
+  - title: '💥 Breaking Changes'
+    labels:
+      - 'boom'
+      - 'breaking'
+      - 'breaking-change'
+  - title: '✨ Features & Improvements'
+    labels:
+      - 'sparkles'
+      - 'tada'
+      - 'rocket'
+      - 'children-crossing'
+      - 'iphone'
+      - 'dizzy'
+      - 'globe-with-meridians'
+      - 'bento'
+      - 'wheelchair'
+      - 'egg'
+      - 'alembic'
+      - 'triangular-flag-on-post'
+      - 'necktie'
+      - 't-rex'
+      - 'airplane'
+      - 'feature'
+      - 'enhancement'
+      - 'feat'
+  - title: '🐛 Bug Fixes & Security'
+    labels:
+      - 'bug'
+      - 'ambulance'
+      - 'adhesive-bandage'
+      - 'lock'
+      - 'closed-lock-with-key'
+      - 'passport-control'
+      - 'safety-vest'
+      - 'goal-net'
+      - 'rotating-light'
+      - 'pencil2'
+      - 'alien'
+      - 'fix'
+      - 'bugfix'
+      - 'security'
+  - title: '⚡ Performance'
+    labels:
+      - 'zap'
+      - 'thread'
+      - 'mag'
+      - 'perf'
+      - 'performance'
+  - title: '📝 Documentation'
+    labels:
+      - 'memo'
+      - 'bulb'
+      - 'page-facing-up'
+      - 'busts-in-silhouette'
+      - 'speech-balloon'
+      - 'docs'
+      - 'documentation'
+  - title: '♻️ Code Refactoring & Style'
+    labels:
+      - 'recycle'
+      - 'art'
+      - 'fire'
+      - 'coffin'
+      - 'building-construction'
+      - 'wastebasket'
+      - 'truck'
+      - 'label'
+      - 'card-file-box'
+      - 'lipstick'
+      - 'poop'
+      - 'refactor'
+      - 'style'
+  - title: '📦 Dependency Updates'
+    labels:
+      - 'arrow-up'
+      - 'arrow-down'
+      - 'pushpin'
+      - 'heavy-plus-sign'
+      - 'heavy-minus-sign'
+      - 'package'
+      - 'dependencies'
+      - 'deps'
+  - title: '👷 CI, Build & Tooling'
+    labels:
+      - 'construction-worker'
+      - 'green-heart'
+      - 'wrench'
+      - 'hammer'
+      - 'bricks'
+      - 'technologist'
+      - 'see-no-evil'
+      - 'chart-with-upwards-trend'
+      - 'stethoscope'
+      - 'money-with-wings'
+      - 'bookmark'
+      - 'construction'
+      - 'loud-sound'
+      - 'mute'
+      - 'ci'
+      - 'build'
+      - 'chore'
+  - title: '🧪 Tests'
+    labels:
+      - 'white-check-mark'
+      - 'test-tube'
+      - 'camera-flash'
+      - 'clown-face'
+      - 'seedling'
+      - 'monocle-face'
+      - 'test'
+  - title: '⏪️ Reverts & Branches'
+    labels:
+      - 'rewind'
+      - 'twisted-rightwards-arrows'
+      - 'beers'
+      - 'revert'
+
+version-resolver:
+  major:
+    labels:
+      - 'boom'
+      - 'breaking'
+      - 'breaking-change'
+  minor:
+    labels:
+      - 'sparkles'
+      - 'tada'
+      - 'rocket'
+      - 'children-crossing'
+      - 'iphone'
+      - 'dizzy'
+      - 'globe-with-meridians'
+      - 'bento'
+      - 'wheelchair'
+      - 'egg'
+      - 'alembic'
+      - 'triangular-flag-on-post'
+      - 'necktie'
+      - 't-rex'
+      - 'airplane'
+      - 'feature'
+      - 'enhancement'
+      - 'feat'
+  patch:
+    labels:
+      - 'bug'
+      - 'ambulance'
+      - 'adhesive-bandage'
+      - 'lock'
+      - 'closed-lock-with-key'
+      - 'passport-control'
+      - 'safety-vest'
+      - 'goal-net'
+      - 'rotating-light'
+      - 'pencil2'
+      - 'alien'
+      - 'fix'
+      - 'bugfix'
+      - 'security'
+      - 'zap'
+      - 'thread'
+      - 'mag'
+      - 'perf'
+      - 'performance'
+      - 'memo'
+      - 'bulb'
+      - 'page-facing-up'
+      - 'busts-in-silhouette'
+      - 'speech-balloon'
+      - 'docs'
+      - 'documentation'
+      - 'recycle'
+      - 'art'
+      - 'fire'
+      - 'coffin'
+      - 'building-construction'
+      - 'wastebasket'
+      - 'truck'
+      - 'label'
+      - 'card-file-box'
+      - 'lipstick'
+      - 'poop'
+      - 'refactor'
+      - 'style'
+      - 'arrow-up'
+      - 'arrow-down'
+      - 'pushpin'
+      - 'heavy-plus-sign'
+      - 'heavy-minus-sign'
+      - 'package'
+      - 'dependencies'
+      - 'deps'
+      - 'construction-worker'
+      - 'green-heart'
+      - 'wrench'
+      - 'hammer'
+      - 'bricks'
+      - 'technologist'
+      - 'see-no-evil'
+      - 'chart-with-upwards-trend'
+      - 'stethoscope'
+      - 'money-with-wings'
+      - 'bookmark'
+      - 'construction'
+      - 'loud-sound'
+      - 'mute'
+      - 'ci'
+      - 'build'
+      - 'chore'
+      - 'white-check-mark'
+      - 'test-tube'
+      - 'camera-flash'
+      - 'clown-face'
+      - 'seedling'
+      - 'monocle-face'
+      - 'test'
+      - 'rewind'
+      - 'twisted-rightwards-arrows'
+      - 'beers'
+      - 'revert'
+  default: patch
+
+autolabeler:
+  - label: 'boom'
+    title:
+      - '/^(:boom:|💥)/'
+      - '/BREAKING CHANGE/i'
+    branch:
+      - '/.*breaking.*/i'
+
+  - label: 'sparkles'
+    title:
+      - '/^(:sparkles:|✨)/'
+    branch:
+      - '/^feat(\//|-)/i'
+      - '/^feature(\//|-)/i'
+
+  - label: 'tada'
+    title:
+      - '/^(:tada:|🎉)/'
+
+  - label: 'rocket'
+    title:
+      - '/^(:rocket:|🚀)/'
+
+  - label: 'children-crossing'
+    title:
+      - '/^(:children_crossing:|🚸)/'
+
+  - label: 'iphone'
+    title:
+      - '/^(:iphone:|📱)/'
+
+  - label: 'dizzy'
+    title:
+      - '/^(:dizzy:|💫)/'
+
+  - label: 'globe-with-meridians'
+    title:
+      - '/^(:globe_with_meridians:|🌐)/'
+
+  - label: 'bento'
+    title:
+      - '/^(:bento:|🍱)/'
+
+  - label: 'wheelchair'
+    title:
+      - '/^(:wheelchair:|♿️?)/'
+
+  - label: 'egg'
+    title:
+      - '/^(:egg:|🥚)/'
+
+  - label: 'alembic'
+    title:
+      - '/^(:alembic:|⚗️?)/'
+
+  - label: 'triangular-flag-on-post'
+    title:
+      - '/^(:triangular_flag_on_post:|🚩)/'
+
+  - label: 'necktie'
+    title:
+      - '/^(:necktie:|👔)/'
+
+  - label: 't-rex'
+    title:
+      - '/^(:t-rex:|🦖)/'
+
+  - label: 'airplane'
+    title:
+      - '/^(:airplane:|✈️?)/'
+
+  - label: 'bug'
+    title:
+      - '/^(:bug:|🐛)/'
+    branch:
+      - '/^fix(\//|-)/i'
+      - '/^bugfix(\//|-)/i'
+      - '/^hotfix(\//|-)/i'
+      - '/^sec(urity)?(\//|-)/i'
+
+  - label: 'ambulance'
+    title:
+      - '/^(:ambulance:|🚑️?)/'
+
+  - label: 'adhesive-bandage'
+    title:
+      - '/^(:adhesive_bandage:|🩹)/'
+
+  - label: 'lock'
+    title:
+      - '/^(:lock:|🔒️?)/'
+
+  - label: 'closed-lock-with-key'
+    title:
+      - '/^(:closed_lock_with_key:|🔐)/'
+
+  - label: 'passport-control'
+    title:
+      - '/^(:passport_control:|🛂)/'
+
+  - label: 'safety-vest'
+    title:
+      - '/^(:safety_vest:|🦺)/'
+
+  - label: 'goal-net'
+    title:
+      - '/^(:goal_net:|🥅)/'
+
+  - label: 'rotating-light'
+    title:
+      - '/^(:rotating_light:|🚨)/'
+
+  - label: 'pencil2'
+    title:
+      - '/^(:pencil2:|✏️?)/'
+
+  - label: 'alien'
+    title:
+      - '/^(:alien:|👽️?)/'
+
+  - label: 'zap'
+    title:
+      - '/^(:zap:|⚡️?)/'
+    branch:
+      - '/^perf(\//|-)/i'
+
+  - label: 'thread'
+    title:
+      - '/^(:thread:|🧵)/'
+
+  - label: 'mag'
+    title:
+      - '/^(:mag:|🔍️?)/'
+
+  - label: 'memo'
+    title:
+      - '/^(:memo:|📝)/'
+    branch:
+      - '/^docs?(\//|-)/i'
+
+  - label: 'bulb'
+    title:
+      - '/^(:bulb:|💡)/'
+
+  - label: 'page-facing-up'
+    title:
+      - '/^(:page_facing_up:|📄)/'
+
+  - label: 'busts-in-silhouette'
+    title:
+      - '/^(:busts_in_silhouette:|👥)/'
+
+  - label: 'speech-balloon'
+    title:
+      - '/^(:speech_balloon:|💬)/'
+
+  - label: 'recycle'
+    title:
+      - '/^(:recycle:|♻️?)/'
+    branch:
+      - '/^refactor(\//|-)/i'
+      - '/^style(\//|-)/i'
+
+  - label: 'art'
+    title:
+      - '/^(:art:|🎨)/'
+
+  - label: 'fire'
+    title:
+      - '/^(:fire:|🔥)/'
+
+  - label: 'coffin'
+    title:
+      - '/^(:coffin:|⚰️?)/'
+
+  - label: 'building-construction'
+    title:
+      - '/^(:building_construction:|🏗️?)/'
+
+  - label: 'wastebasket'
+    title:
+      - '/^(:wastebasket:|🗑️?)/'
+
+  - label: 'truck'
+    title:
+      - '/^(:truck:|🚚)/'
+
+  - label: 'label'
+    title:
+      - '/^(:label:|🏷️?)/'
+
+  - label: 'card-file-box'
+    title:
+      - '/^(:card_file_box:|🗃️?)/'
+
+  - label: 'lipstick'
+    title:
+      - '/^(:lipstick:|💄)/'
+
+  - label: 'poop'
+    title:
+      - '/^(:poop:|💩)/'
+
+  - label: 'arrow-up'
+    title:
+      - '/^(:arrow_up:|⬆️?)/'
+    branch:
+      - '/^dependabot\//i'
+      - '/^renovate\//i'
+      - '/^deps?(\//|-)/i'
+
+  - label: 'arrow-down'
+    title:
+      - '/^(:arrow_down:|⬇️?)/'
+
+  - label: 'pushpin'
+    title:
+      - '/^(:pushpin:|📌)/'
+
+  - label: 'heavy-plus-sign'
+    title:
+      - '/^(:heavy_plus_sign:|➕)/'
+
+  - label: 'heavy-minus-sign'
+    title:
+      - '/^(:heavy_minus_sign:|➖)/'
+
+  - label: 'package'
+    title:
+      - '/^(:package:|📦️?)/'
+
+  - label: 'construction-worker'
+    title:
+      - '/^(:construction_worker:|👷)/'
+    branch:
+      - '/^ci(\//|-)/i'
+      - '/^build(\//|-)/i'
+      - '/^chore(\//|-)/i'
+
+  - label: 'green-heart'
+    title:
+      - '/^(:green_heart:|💚)/'
+
+  - label: 'wrench'
+    title:
+      - '/^(:wrench:|🔧)/'
+
+  - label: 'hammer'
+    title:
+      - '/^(:hammer:|🔨)/'
+
+  - label: 'bricks'
+    title:
+      - '/^(:bricks:|🧱)/'
+
+  - label: 'technologist'
+    title:
+      - '/^(:technologist:|🧑‍💻)/'
+
+  - label: 'see-no-evil'
+    title:
+      - '/^(:see_no_evil:|🙈)/'
+
+  - label: 'chart-with-upwards-trend'
+    title:
+      - '/^(:chart_with_upwards_trend:|📈)/'
+
+  - label: 'stethoscope'
+    title:
+      - '/^(:stethoscope:|🩺)/'
+
+  - label: 'money-with-wings'
+    title:
+      - '/^(:money_with_wings:|💸)/'
+
+  - label: 'bookmark'
+    title:
+      - '/^(:bookmark:|🔖)/'
+
+  - label: 'construction'
+    title:
+      - '/^(:construction:|🚧)/'
+
+  - label: 'loud-sound'
+    title:
+      - '/^(:loud_sound:|🔊)/'
+
+  - label: 'mute'
+    title:
+      - '/^(:mute:|🔇)/'
+
+  - label: 'white-check-mark'
+    title:
+      - '/^(:white_check_mark:|✅)/'
+    branch:
+      - '/^tests?(\//|-)/i'
+
+  - label: 'test-tube'
+    title:
+      - '/^(:test_tube:|🧪)/'
+
+  - label: 'camera-flash'
+    title:
+      - '/^(:camera_flash:|📸)/'
+
+  - label: 'clown-face'
+    title:
+      - '/^(:clown_face:|🤡)/'
+
+  - label: 'seedling'
+    title:
+      - '/^(:seedling:|🌱)/'
+
+  - label: 'monocle-face'
+    title:
+      - '/^(:monocle_face:|🧐)/'
+
+  - label: 'rewind'
+    title:
+      - '/^(:rewind:|⏪️?)/'
+    branch:
+      - '/^revert(\//|-)/i'
+
+  - label: 'twisted-rightwards-arrows'
+    title:
+      - '/^(:twisted_rightwards_arrows:|🔀)/'
+
+  - label: 'beers'
+    title:
+      - '/^(:beers:|🍻)/'

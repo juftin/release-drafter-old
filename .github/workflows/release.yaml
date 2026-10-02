@@ -1,0 +1,50 @@
+name: Release Drafter
+
+on:
+  push:
+    branches:
+      - main
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish release immediately'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-drafter:
+    name: Draft / Publish Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Run Release Drafter
+        id: release_drafter
+        uses: release-drafter/release-drafter@v7
+        with:
+          config-name: release-drafter.yaml
+          publish: ${{ inputs.publish || false }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Floating Major Tag
+        if: inputs.publish == true && steps.release_drafter.outputs.tag_name != ''
+        run: |
+          MAJOR="v${{ steps.release_drafter.outputs.major_version }}"
+          TAG="${{ steps.release_drafter.outputs.tag_name }}"
+          echo "Updating floating major tag $MAJOR to $TAG..."
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -fa "$MAJOR" "$TAG" -m "Update $MAJOR to $TAG"
+          git push origin "$MAJOR" --force

@@ -1,0 +1,42 @@
+name: Update Major Version Tag
+
+on:
+  release:
+    types:
+      - published
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  update-major-tag:
+    name: Maintain Floating Major Tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate and Update Major Tag
+        run: |
+          if [ -n "${{ github.event.release.tag_name }}" ]; then
+            TAG_NAME="${{ github.event.release.tag_name }}"
+          else
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+          fi
+
+          if [[ "$TAG_NAME" =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
+            MAJOR="v${BASH_REMATCH[1]}"
+            echo "Moving floating major tag $MAJOR to point to $TAG_NAME ($GITHUB_SHA)..."
+
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            git tag -fa "$MAJOR" "$TAG_NAME" -m "Update $MAJOR to $TAG_NAME"
+            git push origin "$MAJOR" --force
+          else
+            echo "Tag $TAG_NAME does not match SemVer format, skipping."
+          fi

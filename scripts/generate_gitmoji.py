@@ -369,16 +369,17 @@ def main():
     gitmoji_yaml = generate_gitmoji_yaml(gitmojis)
     hybrid_yaml = generate_hybrid_yaml(gitmojis)
 
-    (ROOT_DIR / "configs" / "gitmoji.yml").write_text(gitmoji_yaml, encoding="utf-8")
-    (ROOT_DIR / ".github" / "release-drafter-gitmoji.yml").write_text(gitmoji_yaml, encoding="utf-8")
-    (ROOT_DIR / "configs" / "hybrid.yml").write_text(hybrid_yaml, encoding="utf-8")
-    (ROOT_DIR / ".github" / "release-drafter.yml").write_text(hybrid_yaml, encoding="utf-8")
+    for ext in (".yml", ".yaml"):
+        (ROOT_DIR / "configs" / f"gitmoji{ext}").write_text(gitmoji_yaml, encoding="utf-8")
+        (ROOT_DIR / ".github" / f"release-drafter-gitmoji{ext}").write_text(gitmoji_yaml, encoding="utf-8")
+        (ROOT_DIR / "configs" / f"hybrid{ext}").write_text(hybrid_yaml, encoding="utf-8")
+        (ROOT_DIR / ".github" / f"release-drafter{ext}").write_text(hybrid_yaml, encoding="utf-8")
 
     print("Successfully generated:")
-    print(" - configs/gitmoji.yml")
-    print(" - .github/release-drafter-gitmoji.yml")
-    print(" - configs/hybrid.yml")
-    print(" - .github/release-drafter.yml")
+    print(" - configs/gitmoji.[yml|yaml]")
+    print(" - .github/release-drafter-gitmoji.[yml|yaml]")
+    print(" - configs/hybrid.[yml|yaml]")
+    print(" - .github/release-drafter.[yml|yaml]")
 
 
 if __name__ == "__main__":
