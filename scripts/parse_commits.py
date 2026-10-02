@@ -124,8 +124,68 @@ def set_action_output(name: str, value: str) -> None:
             f.write(f"{name}={value}\n")
 
 
+def load_yaml_config(file_path: str) -> Dict[str, Any]:
+    """
+    Enterprise YAML configuration loader.
+    Prioritizes native industry standards:
+    1. Direct JSON (if companion or JSON file passed)
+    2. PyYAML (if available in Python environment)
+    3. yq (pre-installed binary on all GitHub Actions runners)
+    4. Ruby YAML (pre-installed binary on macOS and Linux runners)
+    5. Pure-Python fallback parser
+    """
+    if file_path.endswith(".json"):
+        with open(file_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    # 1. PyYAML
+    try:
+        import yaml  # type: ignore
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+            if isinstance(data, dict):
+                return data
+    except Exception:
+        pass
+
+    # 2. yq (mikefarah/yq - standard on GitHub Actions runner images)
+    try:
+        out = subprocess.check_output(
+            ["yq", "-o=json", file_path],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+        data = json.loads(out)
+        if isinstance(data, dict):
+            return data
+    except Exception:
+        pass
+
+    # 3. Ruby YAML -> JSON
+    try:
+        cmd = [
+            "ruby",
+            "-ryaml",
+            "-rjson",
+            "-e",
+            "puts JSON.generate(YAML.load(File.read(ARGV[0])))",
+            file_path,
+        ]
+        out = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL)
+        data = json.loads(out)
+        if isinstance(data, dict):
+            return data
+    except Exception:
+        pass
+
+    # 4. Fallback parser as final safety net
+    with open(file_path, "r", encoding="utf-8") as f:
+        return parse_yaml_fallback(f.read())
+
+
 def parse_yaml_fallback(content: str) -> Dict[str, Any]:
-    """Pure Python YAML parser for Release Drafter configs."""
+    """Pure Python YAML parser fallback for Release Drafter configs."""
     try:
         import yaml  # type: ignore
 
@@ -262,14 +322,17 @@ def get_git_commit_range() -> Tuple[Optional[str], str]:
         return None, "HEAD"
 
 
-def get_merged_prs_via_graphql(repo: str, token: str, max_pr_count: int = 500) -> Tuple[Set[str], Set[str]]:
-    """Paginate GitHub GraphQL API to fetch merged PR numbers and all constituent commit SHAs."""
+def get_merged_prs_via_graphql(
+    repo: str, token: str, max_pr_count: int = 500
+) -> Tuple[Set[str], Set[str], Set[str]]:
+    """Paginate GitHub GraphQL API to fetch merged PR numbers, commit SHAs, and subjects (for rebase merge matching)."""
     if not (repo and token and "/" in repo):
-        return set(), set()
+        return set(), set(), set()
 
     owner, repo_name = repo.split("/", 1)
     pr_numbers: Set[str] = set()
     pr_commit_shas: Set[str] = set()
+    pr_subjects: Set[str] = set()
 
     cursor: Optional[str] = None
     has_next_page = True
@@ -284,10 +347,14 @@ def get_merged_prs_via_graphql(repo: str, token: str, max_pr_count: int = 500) -
       }
       nodes {
         number
+        title
         mergeCommit { oid }
         commits(first: 50) {
           nodes {
-            commit { oid }
+            commit {
+              oid
+              messageHeadline
+            }
           }
         }
       }
@@ -314,14 +381,21 @@ def get_merged_prs_via_graphql(repo: str, token: str, max_pr_count: int = 500) -
                     pr_num = str(node.get("number", ""))
                     if pr_num:
                         pr_numbers.add(pr_num)
+                    title = node.get("title", "").strip().lower()
+                    if title:
+                        pr_subjects.add(title)
                     merge_oid = node.get("mergeCommit", {}).get("oid")
                     if merge_oid:
                         pr_commit_shas.add(merge_oid.lower())
                     commits = node.get("commits", {}).get("nodes", [])
                     for c in commits:
-                        oid = c.get("commit", {}).get("oid")
+                        cmt = c.get("commit", {})
+                        oid = cmt.get("oid")
                         if oid:
                             pr_commit_shas.add(oid.lower())
+                        headline = cmt.get("messageHeadline", "").strip().lower()
+                        if headline:
+                            pr_subjects.add(headline)
 
                 page_info = pr_data.get("pageInfo", {})
                 has_next_page = page_info.get("hasNextPage", False)
@@ -332,7 +406,7 @@ def get_merged_prs_via_graphql(repo: str, token: str, max_pr_count: int = 500) -
             print(f"Notice: GraphQL PR query notice: {e}")
             break
 
-    return pr_numbers, pr_commit_shas
+    return pr_numbers, pr_commit_shas, pr_subjects
 
 
 def extract_github_login(email: str, author_name: str) -> Optional[str]:
@@ -349,7 +423,7 @@ def extract_co_authors(body: str) -> List[str]:
     """Parse Co-authored-by trailers from commit message body."""
     co_authors: List[str] = []
     for line in body.splitlines():
-        match = re.match(r"^[Cc]o-[Aa]uthored-[Bb]y:\s*(.*?)\s*<([^>]+)>", line.strip())
+        match = re.match(r"^Co-authored-by:\s*(.*?)\s*<([^>]+)>", line, re.IGNORECASE)
         if match:
             name, email = match.group(1), match.group(2)
             login = extract_github_login(email, name)
@@ -362,12 +436,15 @@ def get_commits(
     existing_body: str = "",
     pr_numbers: Optional[Set[str]] = None,
     pr_commit_shas: Optional[Set[str]] = None,
+    pr_subjects: Optional[Set[str]] = None,
 ) -> List[Commit]:
-    """Retrieve direct commits in the given range, filtering out PRs and merge commits."""
+    """Retrieve direct commits in the given range, filtering out PRs, rebase-merges, and merge commits."""
     if pr_numbers is None:
         pr_numbers = set()
     if pr_commit_shas is None:
         pr_commit_shas = set()
+    if pr_subjects is None:
+        pr_subjects = set()
 
     body_pr_matches = re.findall(r"(?:#|/pull/)(\d+)", existing_body)
     all_pr_numbers = pr_numbers.union(body_pr_matches)
@@ -408,6 +485,10 @@ def get_commits(
             # 4. Skip squash commits matching PR number, e.g. "feat: foo (#12)"
             pr_match = re.search(r"\(#(\d+)\)", subject)
             if pr_match and pr_match.group(1) in all_pr_numbers:
+                continue
+
+            # 5. Skip commits matching merged PR title or constituent commit headline (handles rebase merges)
+            if pr_subjects and subject.strip().lower() in pr_subjects:
                 continue
 
             login = extract_github_login(author_email, author_name)
@@ -790,10 +871,7 @@ def main() -> None:
         print(f"Error: Config file not found at {args.config}", file=sys.stderr)
         sys.exit(1)
 
-    with open(args.config, "r", encoding="utf-8") as f:
-        config_content = f.read()
-
-    config = parse_yaml_fallback(config_content)
+    config = load_yaml_config(args.config)
     if not config:
         print("Error: Failed to parse configuration file.", file=sys.stderr)
         sys.exit(1)
@@ -810,9 +888,9 @@ def main() -> None:
             current_name = rel_info.get("name", "")
 
     # 2. Query merged PRs and commit SHAs via GraphQL
-    pr_numbers, pr_commit_shas = set(), set()
+    pr_numbers, pr_commit_shas, pr_subjects = set(), set(), set()
     if args.repo and args.token:
-        pr_numbers, pr_commit_shas = get_merged_prs_via_graphql(args.repo, args.token)
+        pr_numbers, pr_commit_shas, pr_subjects = get_merged_prs_via_graphql(args.repo, args.token)
 
     # 3. Determine commit range
     prev_tag, commit_range = get_git_commit_range()
@@ -824,6 +902,7 @@ def main() -> None:
         existing_body=current_body,
         pr_numbers=pr_numbers,
         pr_commit_shas=pr_commit_shas,
+        pr_subjects=pr_subjects,
     )
 
     if not commits and not args.force:

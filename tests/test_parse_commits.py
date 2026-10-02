@@ -9,6 +9,7 @@ import unittest
 
 # Add repo root to import path
 REPO_ROOT = Path(__file__).resolve().parent.parent
+ROOT_DIR = REPO_ROOT
 sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.parse_commits import (
@@ -19,6 +20,7 @@ from scripts.parse_commits import (
     extract_co_authors,
     extract_github_login,
     format_commit_item,
+    load_yaml_config,
     merge_commits_into_release_body,
     parse_yaml_fallback,
     resolve_commit_semver_increment,
@@ -187,6 +189,14 @@ Co-authored-by: Bob Jones <bob@example.com>
 
         # Footer preserved
         self.assertIn("**Full Changelog**: https://github.com/foo/bar/compare/v1.0.0...v1.1.0", res)
+
+    def test_load_yaml_config(self):
+        config_path = str(REPO_ROOT / "configs" / "conventional-commits.yaml")
+        cfg = load_yaml_config(config_path)
+        self.assertIn("categories", cfg)
+        self.assertIn("version-resolver", cfg)
+        self.assertIn("autolabeler", cfg)
+        self.assertGreaterEqual(len(cfg["categories"]), 5)
 
 
 if __name__ == "__main__":
