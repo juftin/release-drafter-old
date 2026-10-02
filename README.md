@@ -55,7 +55,7 @@ jobs:
     permissions:
       contents: write       # Needed to create/update releases
       pull-requests: write  # Needed for autolabeler to label PRs
-    uses: juftin/release-drafter/.github/workflows/release-drafter.yaml@v1
+    uses: juftin/release-drafter/release-drafter.yaml@v1
     with:
       config: conventional-commits # Options: conventional-commits, gitmoji, hybrid
 ```
@@ -68,7 +68,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: juftin/release-drafter/.github/workflows/release-drafter.yaml@v1
+    uses: juftin/release-drafter/release-drafter.yaml@v1
     with:
       config: gitmoji
 ```
@@ -225,7 +225,7 @@ Then run the standard release-drafter action in your workflow:
 This repository is equipped with automated CI/CD for release management and floating tags:
 
 - **Release Drafting & Publishing**: [`.github/workflows/release.yaml`](.github/workflows/release.yaml) drafts releases automatically on merge to `main` and on pull requests using `.github/release-drafter.yaml`. Releases can be published manually via `workflow_dispatch` or via the GitHub Releases UI.
-- **Floating Major Version Tag (`v1`)**: [`.github/workflows/update-major-tag.yaml`](.github/workflows/update-major-tag.yaml) automatically updates the floating major tag (`v1`) to track the latest release (e.g., `v1.2.3`). Consumers referencing `uses: juftin/release-drafter@v1` or `uses: juftin/release-drafter/.github/workflows/release-drafter.yaml@v1` will automatically receive backward-compatible updates without manual intervention.
+- **Floating Major Version Tag (`v1`)**: [`.github/workflows/update-major-tag.yaml`](.github/workflows/update-major-tag.yaml) automatically updates the floating major tag (`v1`) to track the latest release (e.g., `v1.2.3`). Consumers referencing `uses: juftin/release-drafter@v1` or `uses: juftin/release-drafter/release-drafter.yaml@v1` will automatically receive backward-compatible updates without manual intervention.
 
 ---
 

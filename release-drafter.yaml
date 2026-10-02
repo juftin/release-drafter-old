@@ -132,7 +132,7 @@ jobs:
             REPO="juftin/release-drafter"
             REF="main"
 
-            if [[ "$WORKFLOW_REF" =~ ^([^/]+/[^/]+)/\.github/workflows/.*@(.*)$ ]]; then
+            if [[ "$WORKFLOW_REF" =~ ^([^/]+/[^/]+)/.*@(.*)$ ]]; then
               REPO="${BASH_REMATCH[1]}"
               REF="${BASH_REMATCH[2]}"
             fi
